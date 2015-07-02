@@ -1,8 +1,11 @@
 .gradle
+*.class
+hs_err_pid*
 build/
+nb-configuration.xml
+.nb-*
+*.bak
+*.lock
 
-# Ignore Gradle GUI config
-gradle-app.setting
+!libs/
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
