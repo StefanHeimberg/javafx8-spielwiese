@@ -97,27 +97,19 @@ public class App extends Application {
             return;
         }
 
-        final SequentialTransition transition = createTransition(iv, newImage);
-        transition.play();
-    }
-
-    private SequentialTransition createTransition(final ImageView iv, final Image img) {
         final FadeTransition fadeOutTransition = new FadeTransition(Duration.seconds(1), iv);
         fadeOutTransition.setFromValue(1.0);
         fadeOutTransition.setToValue(0.3);
         fadeOutTransition.setOnFinished((ActionEvent arg0) -> {
-            iv.setImage(img);
+            iv.setImage(newImage);
         });
 
         final FadeTransition fadeInTransition = new FadeTransition(Duration.seconds(1), iv);
         fadeInTransition.setFromValue(0.3);
         fadeInTransition.setToValue(1.0);
-        final SequentialTransition sequentialTransition = SequentialTransitionBuilder
-                .create()
-                .children(fadeOutTransition, fadeInTransition)
-                .build();
-
-        return sequentialTransition;
+        
+        final SequentialTransition sequentialTransition = new SequentialTransition(fadeOutTransition, fadeInTransition);
+        sequentialTransition.play();
     }
 
 }
