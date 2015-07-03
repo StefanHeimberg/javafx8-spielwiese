@@ -1,0 +1,27 @@
+// ***************************************************************************
+// Build Script for this Project
+// ***************************************************************************
+
+apply plugin: 'java'
+
+// ---------------------------------------------------------------------------
+// Project Properties
+// ---------------------------------------------------------------------------
+
+sourceCompatibility = '1.8'
+targetCompatibility = sourceCompatibility
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+ext {
+    if (!hasProperty('mainClass')) {
+        ext.mainClass = 'example.App'
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Gradle Wrapper Task
+// ---------------------------------------------------------------------------
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}
