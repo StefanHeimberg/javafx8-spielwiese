@@ -9,6 +9,9 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -34,23 +37,21 @@ public class App extends Application {
         final ImageView iv = new ImageView(i);
         iv.fitHeightProperty().bind(primaryStage.heightProperty());
         iv.fitWidthProperty().bind(primaryStage.widthProperty());
-
+        
         final Pane root = new Pane();
         root.getChildren().add(iv);
 
         final Scene scene = new Scene(root, 800, 600);
         scene.setFill(Color.WHITE);
         
+        final KeyCodeCombination fullscreenKeyCodeCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
+        
+        scene.getAccelerators().put(fullscreenKeyCodeCombination, () -> {
+            primaryStage.setFullScreen(!primaryStage.isFullScreen());
+        });
+        
         primaryStage.setScene(scene);
         primaryStage.show();
-
-        Thread.sleep(2000);
-
-        primaryStage.setFullScreen(true);
-
-        Thread.sleep(2000);
-
-        primaryStage.setFullScreen(false);
     }
 
 }
