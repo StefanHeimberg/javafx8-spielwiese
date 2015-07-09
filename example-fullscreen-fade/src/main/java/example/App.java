@@ -32,6 +32,8 @@ import javafx.util.Duration;
 public class App extends Application {
 
     private static final String IMAGE = "example/NatGeo%s.jpg";
+    private static final int SCREEN_WIDTH = 1280;
+    private static final int SCREEN_HEIGHT = 720;
 
     public static void main(String[] args) {
         launch(args);
@@ -53,7 +55,7 @@ public class App extends Application {
         final Pane root = new Pane();
         root.getChildren().add(iv);
 
-        final Scene scene = new Scene(root, 1280/3*2, 720/3*2);
+        final Scene scene = new Scene(root, SCREEN_WIDTH/3*2, SCREEN_HEIGHT/3*2);
         scene.setFill(Color.WHITE);
 
         final KeyCodeCombination fullscreenKeyCodeCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
@@ -99,7 +101,7 @@ public class App extends Application {
                     // nothing to set. image does not exists
                     return;
                 }
-                newImage = new Image(imageIS, 1280, 720, true, true);
+                newImage = new Image(imageIS, SCREEN_WIDTH, SCREEN_HEIGHT, true, true);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -117,11 +119,11 @@ public class App extends Application {
     private void fade(final Node node, EventHandler<ActionEvent> finishAction) {
         final FadeTransition fadeOutTransition = new FadeTransition(Duration.seconds(1), node);
         fadeOutTransition.setFromValue(1.0);
-        fadeOutTransition.setToValue(0.3);
+        fadeOutTransition.setToValue(0.5);
         fadeOutTransition.setOnFinished(finishAction);
 
         final FadeTransition fadeInTransition = new FadeTransition(Duration.seconds(1), node);
-        fadeInTransition.setFromValue(0.3);
+        fadeInTransition.setFromValue(0.5);
         fadeInTransition.setToValue(1.0);
 
         final SequentialTransition sequentialTransition = new SequentialTransition(fadeOutTransition, fadeInTransition);
