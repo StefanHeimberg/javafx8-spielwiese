@@ -11,12 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.FadeTransition;
-import javafx.animation.SequentialTransition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -33,7 +29,6 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 /**
  *
@@ -147,9 +142,11 @@ public class App extends Application {
         if (oldImage == null || oldImage == newImage) {
             iv.setImage(newImage);
         } else {
-            fade(iv, (ActionEvent event) -> {
+            final MultimediaFadeTransition mfd = new MultimediaFadeTransition(iv);
+            mfd.setFromOnFinished((ActionEvent event) -> {
                 iv.setImage(newImage);
             });
+            mfd.play();
         }
     }
 
@@ -180,24 +177,12 @@ public class App extends Application {
         if (oldMedia == null || oldMedia == newMedia) {
             mv.setMediaPlayer(mediaPlayer);
         } else {
-            fade(mv, (ActionEvent event) -> {
+            final MultimediaFadeTransition mfd = new MultimediaFadeTransition(mv);
+            mfd.setFromOnFinished((ActionEvent event) -> {
                 mv.setMediaPlayer(mediaPlayer);
             });
+            mfd.play();
         }
-    }
-
-    private void fade(final Node node, EventHandler<ActionEvent> finishAction) {
-        final FadeTransition fadeOutTransition = new FadeTransition(Duration.seconds(1), node);
-        fadeOutTransition.setFromValue(1.0);
-        fadeOutTransition.setToValue(0.5);
-        fadeOutTransition.setOnFinished(finishAction);
-
-        final FadeTransition fadeInTransition = new FadeTransition(Duration.seconds(1), node);
-        fadeInTransition.setFromValue(0.5);
-        fadeInTransition.setToValue(1.0);
-
-        final SequentialTransition sequentialTransition = new SequentialTransition(fadeOutTransition, fadeInTransition);
-        sequentialTransition.play();
     }
 
 }
