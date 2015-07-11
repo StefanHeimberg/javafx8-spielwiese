@@ -9,10 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -48,50 +48,61 @@ public class App extends Application {
         launch(args);
     }
 
-    private static int currentImageNr = -1;
-    private static int currentMovieNr = -1;
+    private ImageView imageView;
+    private MediaView mediaView1;
+    private MediaView mediaView2;
+    private Node prevNode;
+    private MediaView currentMediaView;
+    private MediaView nextMediaView;
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
         primaryStage.setTitle("Fullscreen Fade Example");
         primaryStage.setResizable(true);
 
-        // https://blog.codecentric.de/en/2015/04/tweaking-the-menu-bar-of-javafx-8-applications-on-os-x
-        // https://github.com/codecentric/NSMenuFX
-        final ImageView iv = new ImageView();
-        iv.setPreserveRatio(true);
-        iv.setSmooth(true);
-        iv.fitHeightProperty().bind(primaryStage.heightProperty());
-        iv.fitWidthProperty().bind(primaryStage.widthProperty());
+        imageView = new ImageView();
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        imageView.fitHeightProperty().bind(primaryStage.heightProperty());
+        imageView.fitWidthProperty().bind(primaryStage.widthProperty());
 
-        final MediaView mv = new MediaView();
-        mv.setPreserveRatio(true);
-        mv.setSmooth(true);
-        mv.fitHeightProperty().bind(primaryStage.heightProperty());
-        mv.fitWidthProperty().bind(primaryStage.widthProperty());
+        mediaView1 = new MediaView();
+        mediaView1.setPreserveRatio(true);
+        mediaView1.setSmooth(true);
+        mediaView1.fitHeightProperty().bind(primaryStage.heightProperty());
+        mediaView1.fitWidthProperty().bind(primaryStage.widthProperty());
+
+        mediaView2 = new MediaView();
+        mediaView2.setPreserveRatio(true);
+        mediaView2.setSmooth(true);
+        mediaView2.fitHeightProperty().bind(primaryStage.heightProperty());
+        mediaView2.fitWidthProperty().bind(primaryStage.widthProperty());
+
+        currentMediaView = mediaView1;
+        nextMediaView = mediaView2;
 
         final MenuItem image1MenuItem = new MenuItem("Image 1");
         image1MenuItem.setAccelerator(new KeyCodeCombination(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN));
         image1MenuItem.setOnAction((ActionEvent event) -> {
-            setImage(1, iv);
+            setImage(loadImage(1));
         });
 
         final MenuItem image2MenuItem = new MenuItem("Image 2");
         image2MenuItem.setAccelerator(new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN));
         image2MenuItem.setOnAction((ActionEvent event) -> {
-            setImage(2, iv);
+            setImage(loadImage(2));
         });
 
         final MenuItem movie1MenuItem = new MenuItem("Movie 1");
         movie1MenuItem.setAccelerator(new KeyCodeCombination(KeyCode.DIGIT3, KeyCombination.SHORTCUT_DOWN));
         movie1MenuItem.setOnAction((ActionEvent event) -> {
-            setMovie(1, mv);
+            setMedia(loadMedia(1));
         });
 
         final MenuItem movie2MenuItem = new MenuItem("Movie 2");
         movie2MenuItem.setAccelerator(new KeyCodeCombination(KeyCode.DIGIT4, KeyCombination.SHORTCUT_DOWN));
         movie2MenuItem.setOnAction((ActionEvent event) -> {
-            setMovie(2, mv);
+            setMedia(loadMedia(2));
         });
 
         final MenuItem fullscreen = new MenuItem("Fullscreen");
@@ -113,76 +124,75 @@ public class App extends Application {
         final MenuBar menuBar = new MenuBar(mediaMenu, windowMenu);
         menuBar.useSystemMenuBarProperty().set(true);
 
-        final Scene scene = new Scene(new Pane(menuBar, iv, mv), SCREEN_WIDTH / 3 * 2, SCREEN_HEIGHT / 3 * 2);
+        final Scene scene = new Scene(new Pane(menuBar, imageView, mediaView1, mediaView2), SCREEN_WIDTH / 3 * 2, SCREEN_HEIGHT / 3 * 2);
         scene.setFill(Color.WHITE);
 
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private void setImage(final int nr, final ImageView iv) {
-        final Image oldImage = iv.getImage();
-        final Image newImage;
-
-        if (currentImageNr == nr) {
-            newImage = oldImage;
-        } else {
-            currentImageNr = nr;
-            try (final InputStream imageIS = new FileInputStream(String.format(IMAGE, nr))) {
-                if (null == imageIS) {
-                    // nothing to set. image does not exists
-                    return;
-                }
-                newImage = new Image(imageIS, SCREEN_WIDTH, SCREEN_HEIGHT, true, true);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+    private Image loadImage(final int nr) {
+        try (final InputStream imageIS = new FileInputStream(String.format(IMAGE, nr))) {
+            if (null == imageIS) {
+                // nothing to set. image does not exists
+                return null;
             }
-        }
-
-        if (oldImage == null || oldImage == newImage) {
-            iv.setImage(newImage);
-        } else {
-            final MultimediaFadeTransition mfd = new MultimediaFadeTransition(iv);
-            mfd.setFromOnFinished((ActionEvent event) -> {
-                iv.setImage(newImage);
-            });
-            mfd.play();
+            return new Image(imageIS, SCREEN_WIDTH, SCREEN_HEIGHT, true, true);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
-    private void setMovie(final int nr, final MediaView mv) {
+    private void setImage(final Image image) {
+        final Image oldImage = imageView.getImage();
+        final Image newImage = image;
+
+        if (oldImage == null || oldImage == newImage) {
+            imageView.setImage(newImage);
+        } else {
+            new FadeTransitionBuilder()
+                    .withDefaults()
+                    .withFrom(prevNode)
+                    .withToImage(imageView, newImage)
+                    .build()
+                    .play();
+        }
+        prevNode = imageView;
+    }
+
+    private Media loadMedia(final int nr) {
+        final File mediaFile = new File(String.format(MOVIE, nr));
+        return new Media(mediaFile.toURI().toString());
+    }
+
+    private void setMedia(final Media media) {
         final Media oldMedia;
-        if (null == mv.getMediaPlayer()) {
+        if (null == currentMediaView.getMediaPlayer()) {
             oldMedia = null;
         } else {
-            oldMedia = mv.getMediaPlayer().getMedia();
+            oldMedia = currentMediaView.getMediaPlayer().getMedia();
         }
 
-        final Media newMedia;
-
-        if (currentMovieNr == nr) {
-            newMedia = oldMedia;
-        } else {
-            currentMovieNr = nr;
-            final File mediaFile = new File(String.format(MOVIE, nr));
-            LOG.log(Level.INFO, "mediaFile: {0}", mediaFile);
-            newMedia = new Media(mediaFile.toURI().toString());
-        }
-
-        final MediaPlayer mediaPlayer = new MediaPlayer(newMedia);
-        mediaPlayer.setMute(true);
-        mediaPlayer.setAutoPlay(true);
-        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        final Media newMedia = media;
 
         if (oldMedia == null || oldMedia == newMedia) {
-            mv.setMediaPlayer(mediaPlayer);
+            final MediaPlayer mediaPlayer = new MediaPlayer(newMedia);
+            mediaPlayer.setMute(true);
+            mediaPlayer.setAutoPlay(true);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            
+            currentMediaView.setMediaPlayer(mediaPlayer);
         } else {
-            final MultimediaFadeTransition mfd = new MultimediaFadeTransition(mv);
-            mfd.setFromOnFinished((ActionEvent event) -> {
-                mv.setMediaPlayer(mediaPlayer);
-            });
-            mfd.play();
+            new FadeTransitionBuilder()
+                    .withDefaults()
+                    .withFrom(prevNode)
+                    .withToMedia(nextMediaView, newMedia)
+                    .build()
+                    .play();
         }
+        prevNode = nextMediaView;
+        nextMediaView = currentMediaView;
+        currentMediaView = (MediaView) prevNode;
     }
 
 }
