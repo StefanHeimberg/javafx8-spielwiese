@@ -16,6 +16,7 @@ import javafx.animation.SequentialTransition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -29,6 +30,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -47,11 +49,12 @@ public class App extends Application {
 
     private static final int MAX_SCREEN_WIDTH = 1280;
     private static final int MAX_SCREEN_HEIGHT = 720;
-    
+
     public static enum ViewId {
-        IMAGE1, IMAGE2, MOVIE1, MOVIE2;
+
+        IMAGE1, IMAGE2, MEDIA1, MEDIA2;
     }
-    
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -60,17 +63,13 @@ public class App extends Application {
     private final ImageView imageView2 = new ImageView();
     private final MediaView mediaView1 = new MediaView();
     private final MediaView mediaView2 = new MediaView();
-    
+
     private final FadeTransition fadeOutTransition = new FadeTransition();
     private final FadeTransition fadeInTransition = new FadeTransition();
-    private final SequentialTransition transition = new SequentialTransition();
-    
+    private final SequentialTransition transition = new SequentialTransition(fadeOutTransition, fadeInTransition);
+
     private ViewId activeView;
-    
-//    private Node prevNode;
-//    private MediaView currentMediaView;
-//    private MediaView nextMediaView;
-    
+
     @Override
     public void start(final Stage primaryStage) throws Exception {
         primaryStage.setTitle("Fullscreen Fade Example");
@@ -78,17 +77,17 @@ public class App extends Application {
         final MenuBar menuBar = new MenuBar(
                 new Menu("Media", null,
                         createMenuItem("Image 1", KeyCode.DIGIT1, (ActionEvent event) -> {
-                            setImage(loadImage(String.format(IMAGE, 1)));
+                            showImage(loadImage(String.format(IMAGE, 1)));
                         }),
                         createMenuItem("Image 2", KeyCode.DIGIT2, (ActionEvent event) -> {
-                            setImage(loadImage(String.format(IMAGE, 2)));
+                            showImage(loadImage(String.format(IMAGE, 2)));
                         }),
                         new SeparatorMenuItem(),
                         createMenuItem("Movie 1", KeyCode.DIGIT3, (ActionEvent event) -> {
-                            setMedia(loadMedia(String.format(MOVIE, 1)));
+                            playMedia(loadMedia(String.format(MOVIE, 1)));
                         }),
                         createMenuItem("Movie 2", KeyCode.DIGIT4, (ActionEvent event) -> {
-                            setMedia(loadMedia(String.format(MOVIE, 2)));
+                            playMedia(loadMedia(String.format(MOVIE, 2)));
                         })
                 ),
                 new Menu("Window", null,
@@ -98,55 +97,36 @@ public class App extends Application {
                 )
         );
         menuBar.setUseSystemMenuBar(true);
-        
+
         imageView1.setId("image-view-1");
         imageView2.setId("image-view-2");
         mediaView1.setId("media-view-1");
         mediaView2.setId("media-view-2");
-        
+
         fadeOutTransition.setDuration(Duration.seconds(0.5));
         fadeOutTransition.setFromValue(1.0);
         fadeOutTransition.setToValue(0.1);
-        
+
         fadeInTransition.setDuration(Duration.seconds(0.5));
         fadeInTransition.setFromValue(0.1);
         fadeInTransition.setToValue(1.0);
-        
-        transition.getChildren().add(fadeOutTransition);
-        transition.getChildren().add(fadeInTransition);
-        
+
         // Resize Binding 
         imageView1.fitHeightProperty().bind(primaryStage.heightProperty());
         imageView1.fitWidthProperty().bind(primaryStage.widthProperty());
         imageView1.opacityProperty().set(0.0);
-        
+
         imageView2.fitHeightProperty().bind(primaryStage.heightProperty());
         imageView2.fitWidthProperty().bind(primaryStage.widthProperty());
         imageView2.opacityProperty().set(0.0);
-        
+
         mediaView1.fitHeightProperty().bind(primaryStage.heightProperty());
         mediaView1.fitWidthProperty().bind(primaryStage.widthProperty());
         mediaView1.opacityProperty().set(0.0);
-        
+
         mediaView2.fitHeightProperty().bind(primaryStage.heightProperty());
         mediaView2.fitWidthProperty().bind(primaryStage.widthProperty());
         mediaView2.opacityProperty().set(0.0);
-        
-        // Mediaplayer Binding
-        //        imageView.imageProperty().addListener((ObservableValue<? extends Image> observable, Image oldValue, Image newValue) -> {
-        //            final MediaPlayer mediaPlayer1 = mediaView1.getMediaPlayer();
-        //            if(null != mediaPlayer1 && mediaPlayer1.getStatus() == MediaPlayer.Status.PLAYING) {
-        //                mediaPlayer1.stop();
-        //            }
-        //            final MediaPlayer mediaPlayer2 = mediaView2.getMediaPlayer();
-        //            if(null != mediaPlayer2 && mediaPlayer2.getStatus() == MediaPlayer.Status.PLAYING) {
-        //                mediaPlayer2.stop();
-        //            }
-        //        });
-        
-
-//        currentMediaView = mediaView1;
-//        nextMediaView = mediaView2;
 
         final Pane pane = new StackPane();
         pane.getChildren().add(menuBar);
@@ -155,112 +135,117 @@ public class App extends Application {
         pane.getChildren().add(mediaView1);
         pane.getChildren().add(mediaView2);
 
-        //setImage(loadImage(DEFAULT));
-
+        showImage(loadImage(DEFAULT));
+        
         primaryStage.setScene(new Scene(pane, MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
         primaryStage.show();
     }
-    
-    private void fade(final ImageView fromView, final ImageView toView, final Image image) {
+
+    private void playMedia(final Node fromView, final MediaView toView, final Media media) {
+        final MediaPlayer mediaPlayer = createAndSetMediaPlayer(toView, media);
+        
+        if(null == fromView) {
+            LOG.log(Level.INFO, "playing media on {0}", toView.getId());
+            
+            mediaPlayer.play();
+            toView.opacityProperty().set(1.0);
+            return;
+        }
+        
+        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
+
+        fadeOutTransition.setNode(fromView);
+        fadeOutTransition.setOnFinished((ActionEvent event) -> {
+            mediaPlayer.play();
+        });
+
+        fadeInTransition.setNode(toView);
+        fadeInTransition.setOnFinished((ActionEvent event) -> {
+            fromView.opacityProperty().set(0.0);
+            if(fromView instanceof MediaView) {
+                removeMedia((MediaView) fromView);
+            }
+            else if(fromView instanceof ImageView) {
+                ((ImageView)fromView).setImage(null);
+            }
+        });
+
+        transition.playFromStart();
+    }
+
+    private void showImage(final Node fromView, final ImageView toView, final Image image) {
+        if(null == fromView) {
+            LOG.log(Level.INFO, "show image on {0}", toView.getId());
+            
+            toView.setImage(image);
+            toView.opacityProperty().set(1.0);
+            return;
+        }
+        
         LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
         
         fadeOutTransition.setNode(fromView);
         fadeOutTransition.setOnFinished((ActionEvent event) -> {
             toView.setImage(image);
         });
-        
+
         fadeInTransition.setNode(toView);
         fadeInTransition.setOnFinished((ActionEvent event) -> {
-            fromView.setImage(null);
             fromView.opacityProperty().set(0.0);
+            if(fromView instanceof MediaView) {
+                removeMedia((MediaView) fromView);
+            }
+            else if(fromView instanceof ImageView) {
+                ((ImageView)fromView).setImage(null);
+            }
         });
-        
+
         transition.playFromStart();
     }
-    
-    private void fade(final ImageView fromView, final MediaView toView, final Media media) {
-        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
-        
-        // FIXME implement
-    }
-    
-    private void fade(final MediaView fromView, final MediaView toView, final Media media) {
-        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
-        
-        // FIXME implement
-    }
-    
-    private void fade(final MediaView fromView, final ImageView toView, final Image image) {
-        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
-        
-        // FIXME implement
-    }
-    
-    private void setImage(final Image image) {
-        if(null == activeView) {
-            imageView1.setImage(image);
-            imageView1.opacityProperty().set(1.0);
+
+    public void showImage(final Image image) {
+        if (null == activeView) {
+            showImage(null, imageView1, image);
             activeView = ViewId.IMAGE1;
-            return;
-        }
-        
-        if(activeView == ViewId.IMAGE1) {
-            fade(imageView1, imageView2, image);
+        } else if (activeView == ViewId.IMAGE1) {
+            showImage(imageView1, imageView2, image);
             activeView = ViewId.IMAGE2;
-            return;
-        }
-        
-        if(activeView == ViewId.IMAGE2) {
-            fade(imageView2, imageView1, image);
+        } else if (activeView == ViewId.IMAGE2) {
+            showImage(imageView2, imageView1, image);
             activeView = ViewId.IMAGE1;
-            return;
-        }
-        
-        if(activeView == ViewId.MOVIE1) {
-            fade(mediaView1, imageView1, image);
+        } else if (activeView == ViewId.MEDIA1) {
+            showImage(mediaView1, imageView1, image);
             activeView = ViewId.IMAGE1;
-            return;
-        }
-        
-        if(activeView == ViewId.MOVIE2) {
-            fade(mediaView2, imageView1, image);
+        } else if (activeView == ViewId.MEDIA2) {
+            showImage(mediaView2, imageView1, image);
             activeView = ViewId.IMAGE1;
-            return;
+        } else {
+            throw new IllegalStateException("cannot set image...");
         }
-        
-        throw new IllegalStateException("cannot set image...");
     }
 
-    private void setMedia(final Media media) {
-//        final Media oldMedia;
-//        if (null == currentMediaView.getMediaPlayer()) {
-//            oldMedia = null;
-//        } else {
-//            oldMedia = currentMediaView.getMediaPlayer().getMedia();
-//        }
-//
-//        final Media newMedia = media;
-//
-//        if (oldMedia == null || oldMedia == newMedia) {
-//            final MediaPlayer mediaPlayer = new MediaPlayer(newMedia);
-//            mediaPlayer.setMute(true);
-//            mediaPlayer.setAutoPlay(true);
-//            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-//
-//            currentMediaView.setMediaPlayer(mediaPlayer);
-//        } else {
-//            new FadeTransitionBuilder()
-//                    .withDefaults()
-//                    .withFrom(prevNode)
-//                    .withToMedia(nextMediaView, newMedia)
-//                    .build()
-//                    .play();
-//        }
-//        prevNode = nextMediaView;
-//        nextMediaView = currentMediaView;
-//        currentMediaView = (MediaView) prevNode;
+    public void playMedia(final Media media) {
+        if (null == activeView) {
+            playMedia(null, mediaView1, media);
+            activeView = ViewId.MEDIA1;
+        } else if (activeView == ViewId.MEDIA1) {
+            playMedia(mediaView1, mediaView2, media);
+            activeView = ViewId.MEDIA2;
+        } else if (activeView == ViewId.MEDIA2) {
+            playMedia(mediaView2, mediaView1, media);
+            activeView = ViewId.MEDIA1;
+        } else if (activeView == ViewId.IMAGE1) {
+            playMedia(imageView1, mediaView1, media);
+            activeView = ViewId.MEDIA1;
+        } else if (activeView == ViewId.IMAGE2) {
+            playMedia(imageView2, mediaView1, media);
+            activeView = ViewId.MEDIA1;
+        } else {
+            throw new IllegalStateException("cannot set media...");
+        }
+
     }
-    
+
     private static Image loadImage(final String filePath) {
         try (final InputStream imageIS = new FileInputStream(filePath)) {
             if (null == imageIS) {
@@ -272,7 +257,7 @@ public class App extends Application {
             throw new RuntimeException(ex);
         }
     }
-    
+
     private static Media loadMedia(final String mediaPath) {
         return new Media(new File(mediaPath).toURI().toString());
     }
@@ -282,6 +267,27 @@ public class App extends Application {
         menuItem.setAccelerator(new KeyCodeCombination(keyCode, KeyCombination.SHORTCUT_DOWN));
         menuItem.setOnAction(eventHandler);
         return menuItem;
+    }
+
+    private static MediaPlayer createAndSetMediaPlayer(final MediaView view, final Media media) {
+        removeMedia(view);
+        
+        final MediaPlayer mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setMute(true);
+        mediaPlayer.startTimeProperty().set(Duration.seconds(10));
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+        view.setMediaPlayer(mediaPlayer);
+        
+        return mediaPlayer;
+    }
+    
+    private static void removeMedia(final MediaView view) {
+        if (null != view.getMediaPlayer()) {
+            view.getMediaPlayer().stop();
+            view.getMediaPlayer().dispose();
+            view.setMediaPlayer(null);
+        }
     }
 
 }
