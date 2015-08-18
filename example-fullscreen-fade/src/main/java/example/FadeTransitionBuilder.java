@@ -9,6 +9,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Transition;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,6 +28,7 @@ public final class FadeTransitionBuilder {
     private Node fromNode;
     private Node toNode;
     private Object toObject;
+    private EventHandler<ActionEvent> fromOnFinishEventHandler;
 
     public FadeTransitionBuilder withDefaults() {
         duration = Duration.seconds(1);
@@ -40,6 +42,11 @@ public final class FadeTransitionBuilder {
 
     public FadeTransitionBuilder withFrom(Node node) {
         fromNode = node;
+        return this;
+    }
+    
+    public FadeTransitionBuilder withFromOnFinish(EventHandler<ActionEvent> fromOnFinishEventHandler) {
+        this.fromOnFinishEventHandler = fromOnFinishEventHandler;
         return this;
     }
 
@@ -58,46 +65,49 @@ public final class FadeTransitionBuilder {
     public Transition build() {
         final SequentialTransition transition = new SequentialTransition();
 
-        if (toNode instanceof MediaView) {
-            final Transition dummyTransition = new Transition() {
-                @Override
-                protected void interpolate(double frac) {
-                }
-            };
-            dummyTransition.setOnFinished((ActionEvent event) -> {
-                System.out.println("from: "  + fromNode + " to: " + toNode);
-            });
-            transition.getChildren().add(dummyTransition);
-        }
+//        if (toNode instanceof MediaView) {
+//            final Transition dummyTransition = new Transition() {
+//                @Override
+//                protected void interpolate(double frac) {
+//                }
+//            };
+//            dummyTransition.setOnFinished((ActionEvent event) -> {
+//                System.out.println("from: "  + fromNode + " to: " + toNode);
+//            });
+//            transition.getChildren().add(dummyTransition);
+//        }
 
         final FadeTransition fadeOutTransition = new FadeTransition(duration.divide(2), fromNode);
         fadeOutTransition.setFromValue(1.0);
         fadeOutTransition.setToValue(0.5);
-        fadeOutTransition.setOnFinished((ActionEvent event) -> {
-            if (fromNode instanceof MediaView) {
-                final MediaView fromMediaView = (MediaView) fromNode;
-                final MediaPlayer fromMediaPlayer = fromMediaView.getMediaPlayer();
-                if(null != fromMediaPlayer) {
-                    fromMediaPlayer.stop();
-                }
-            }
-            if (toNode instanceof MediaView) {
-                final MediaView toMediaView = (MediaView) toNode;
-                final MediaPlayer toMediaPlayer = toMediaView.getMediaPlayer();
-                if(null != toMediaPlayer) {
-                    toMediaPlayer.stop();
-                }
-            }
-            if (toNode instanceof ImageView) {
-                final ImageView toImageView = (ImageView) toNode;
-                final Image toImage = (Image) toObject;
-                toImageView.setImage(toImage);
-            }
-            if(fromNode != toNode) {
-                fromNode.setVisible(false);
-                toNode.setVisible(true);
-            }
-        });
+        if(null != fromOnFinishEventHandler) {
+            fadeOutTransition.setOnFinished(fromOnFinishEventHandler);
+        }
+//        fadeOutTransition.setOnFinished((ActionEvent event) -> {
+//            if (fromNode instanceof MediaView) {
+//                final MediaView fromMediaView = (MediaView) fromNode;
+//                final MediaPlayer fromMediaPlayer = fromMediaView.getMediaPlayer();
+//                if(null != fromMediaPlayer) {
+//                    fromMediaPlayer.stop();
+//                }
+//            }
+//            if (toNode instanceof MediaView) {
+//                final MediaView toMediaView = (MediaView) toNode;
+//                final MediaPlayer toMediaPlayer = toMediaView.getMediaPlayer();
+//                if(null != toMediaPlayer) {
+//                    toMediaPlayer.stop();
+//                }
+//            }
+//            if (toNode instanceof ImageView) {
+//                final ImageView toImageView = (ImageView) toNode;
+//                final Image toImage = (Image) toObject;
+//                toImageView.setImage(toImage);
+//            }
+//            if(fromNode != toNode) {
+//                fromNode.setVisible(false);
+//                toNode.setVisible(true);
+//            }
+//        });
         transition.getChildren().add(fadeOutTransition);
 
         final FadeTransition fadeInTransition = new FadeTransition(duration.divide(2), toNode);

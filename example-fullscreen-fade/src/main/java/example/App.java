@@ -9,14 +9,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.Transition;
+import javafx.animation.FadeTransition;
+import javafx.animation.SequentialTransition;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -30,9 +29,9 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  *
@@ -49,17 +48,28 @@ public class App extends Application {
     private static final int MAX_SCREEN_WIDTH = 1280;
     private static final int MAX_SCREEN_HEIGHT = 720;
     
+    public static enum ViewId {
+        IMAGE1, IMAGE2, MOVIE1, MOVIE2;
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }
 
-    private final ImageView imageView = new ImageView();
+    private final ImageView imageView1 = new ImageView();
+    private final ImageView imageView2 = new ImageView();
     private final MediaView mediaView1 = new MediaView();
     private final MediaView mediaView2 = new MediaView();
     
-    private Node prevNode;
-    private MediaView currentMediaView;
-    private MediaView nextMediaView;
+    private final FadeTransition fadeOutTransition = new FadeTransition();
+    private final FadeTransition fadeInTransition = new FadeTransition();
+    private final SequentialTransition transition = new SequentialTransition();
+    
+    private ViewId activeView;
+    
+//    private Node prevNode;
+//    private MediaView currentMediaView;
+//    private MediaView nextMediaView;
     
     @Override
     public void start(final Stage primaryStage) throws Exception {
@@ -88,14 +98,39 @@ public class App extends Application {
                 )
         );
         menuBar.setUseSystemMenuBar(true);
-
+        
+        imageView1.setId("image-view-1");
+        imageView2.setId("image-view-2");
+        mediaView1.setId("media-view-1");
+        mediaView2.setId("media-view-2");
+        
+        fadeOutTransition.setDuration(Duration.seconds(0.5));
+        fadeOutTransition.setFromValue(1.0);
+        fadeOutTransition.setToValue(0.1);
+        
+        fadeInTransition.setDuration(Duration.seconds(0.5));
+        fadeInTransition.setFromValue(0.1);
+        fadeInTransition.setToValue(1.0);
+        
+        transition.getChildren().add(fadeOutTransition);
+        transition.getChildren().add(fadeInTransition);
+        
         // Resize Binding 
-        imageView.fitHeightProperty().bind(primaryStage.heightProperty());
-        imageView.fitWidthProperty().bind(primaryStage.widthProperty());
+        imageView1.fitHeightProperty().bind(primaryStage.heightProperty());
+        imageView1.fitWidthProperty().bind(primaryStage.widthProperty());
+        imageView1.opacityProperty().set(0.0);
+        
+        imageView2.fitHeightProperty().bind(primaryStage.heightProperty());
+        imageView2.fitWidthProperty().bind(primaryStage.widthProperty());
+        imageView2.opacityProperty().set(0.0);
+        
         mediaView1.fitHeightProperty().bind(primaryStage.heightProperty());
         mediaView1.fitWidthProperty().bind(primaryStage.widthProperty());
+        mediaView1.opacityProperty().set(0.0);
+        
         mediaView2.fitHeightProperty().bind(primaryStage.heightProperty());
         mediaView2.fitWidthProperty().bind(primaryStage.widthProperty());
+        mediaView2.opacityProperty().set(0.0);
         
         // Mediaplayer Binding
         //        imageView.imageProperty().addListener((ObservableValue<? extends Image> observable, Image oldValue, Image newValue) -> {
@@ -110,66 +145,120 @@ public class App extends Application {
         //        });
         
 
-        currentMediaView = mediaView1;
-        nextMediaView = mediaView2;
+//        currentMediaView = mediaView1;
+//        nextMediaView = mediaView2;
 
         final Pane pane = new StackPane();
         pane.getChildren().add(menuBar);
-        pane.getChildren().add(imageView);
+        pane.getChildren().add(imageView1);
+        pane.getChildren().add(imageView2);
         pane.getChildren().add(mediaView1);
         pane.getChildren().add(mediaView2);
 
-        setImage(loadImage(DEFAULT));
+        //setImage(loadImage(DEFAULT));
 
         primaryStage.setScene(new Scene(pane, MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
         primaryStage.show();
     }
-
+    
+    private void fade(final ImageView fromView, final ImageView toView, final Image image) {
+        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
+        
+        fadeOutTransition.setNode(fromView);
+        fadeOutTransition.setOnFinished((ActionEvent event) -> {
+            toView.setImage(image);
+        });
+        
+        fadeInTransition.setNode(toView);
+        fadeInTransition.setOnFinished((ActionEvent event) -> {
+            fromView.setImage(null);
+            fromView.opacityProperty().set(0.0);
+        });
+        
+        transition.playFromStart();
+    }
+    
+    private void fade(final ImageView fromView, final MediaView toView, final Media media) {
+        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
+        
+        // FIXME implement
+    }
+    
+    private void fade(final MediaView fromView, final MediaView toView, final Media media) {
+        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
+        
+        // FIXME implement
+    }
+    
+    private void fade(final MediaView fromView, final ImageView toView, final Image image) {
+        LOG.log(Level.INFO, "fading from {0} to {1}", new Object[]{fromView.getId(), toView.getId()});
+        
+        // FIXME implement
+    }
+    
     private void setImage(final Image image) {
-        final Image oldImage = imageView.getImage();
-        final Image newImage = image;
-
-        if (oldImage == null || oldImage == newImage) {
-            imageView.setImage(newImage);
-        } else {
-            new FadeTransitionBuilder()
-                    .withDefaults()
-                    .withFrom(prevNode)
-                    .withToImage(imageView, newImage)
-                    .build()
-                    .play();
+        if(null == activeView) {
+            imageView1.setImage(image);
+            imageView1.opacityProperty().set(1.0);
+            activeView = ViewId.IMAGE1;
+            return;
         }
-        prevNode = imageView;
+        
+        if(activeView == ViewId.IMAGE1) {
+            fade(imageView1, imageView2, image);
+            activeView = ViewId.IMAGE2;
+            return;
+        }
+        
+        if(activeView == ViewId.IMAGE2) {
+            fade(imageView2, imageView1, image);
+            activeView = ViewId.IMAGE1;
+            return;
+        }
+        
+        if(activeView == ViewId.MOVIE1) {
+            fade(mediaView1, imageView1, image);
+            activeView = ViewId.IMAGE1;
+            return;
+        }
+        
+        if(activeView == ViewId.MOVIE2) {
+            fade(mediaView2, imageView1, image);
+            activeView = ViewId.IMAGE1;
+            return;
+        }
+        
+        throw new IllegalStateException("cannot set image...");
     }
 
     private void setMedia(final Media media) {
-        final Media oldMedia;
-        if (null == currentMediaView.getMediaPlayer()) {
-            oldMedia = null;
-        } else {
-            oldMedia = currentMediaView.getMediaPlayer().getMedia();
-        }
-
-        final Media newMedia = media;
-
-        if (oldMedia == null || oldMedia == newMedia) {
-            final MediaPlayer mediaPlayer = new MediaPlayer(newMedia);
-            mediaPlayer.setMute(true);
-            mediaPlayer.setAutoPlay(true);
-            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-
-            currentMediaView.setMediaPlayer(mediaPlayer);
-        } else {
-            new FadeTransitionBuilder()
-                    .withDefaults()
-                    .withFrom(prevNode)
-                    .withToMedia(nextMediaView, newMedia)
-                    .build()
-                    .play();
-        }
-        prevNode = nextMediaView;
-        nextMediaView = currentMediaView;
-        currentMediaView = (MediaView) prevNode;
+//        final Media oldMedia;
+//        if (null == currentMediaView.getMediaPlayer()) {
+//            oldMedia = null;
+//        } else {
+//            oldMedia = currentMediaView.getMediaPlayer().getMedia();
+//        }
+//
+//        final Media newMedia = media;
+//
+//        if (oldMedia == null || oldMedia == newMedia) {
+//            final MediaPlayer mediaPlayer = new MediaPlayer(newMedia);
+//            mediaPlayer.setMute(true);
+//            mediaPlayer.setAutoPlay(true);
+//            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+//
+//            currentMediaView.setMediaPlayer(mediaPlayer);
+//        } else {
+//            new FadeTransitionBuilder()
+//                    .withDefaults()
+//                    .withFrom(prevNode)
+//                    .withToMedia(nextMediaView, newMedia)
+//                    .build()
+//                    .play();
+//        }
+//        prevNode = nextMediaView;
+//        nextMediaView = currentMediaView;
+//        currentMediaView = (MediaView) prevNode;
     }
     
     private static Image loadImage(final String filePath) {
