@@ -32,6 +32,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.stage.Stage;
 
@@ -81,10 +82,9 @@ public class App extends Application {
         );
         menuBar.setUseSystemMenuBar(true);
 
-        presentationView.getChildren().add(0, menuBar);
         presentationView.setImage(loadImage("media/default.jpg"));
 
-        primaryStage.setScene(new Scene(presentationView, MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
+        primaryStage.setScene(new Scene(new StackPane(menuBar, presentationView), MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
         primaryStage.show();
     }
 

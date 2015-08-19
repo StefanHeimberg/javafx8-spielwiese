@@ -27,7 +27,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -37,7 +37,7 @@ import javafx.util.Duration;
  *
  * @author Stefan Heimberg <kontakt@stefanheimberg.ch>
  */
-public class PresentationView extends Pane {
+public class PresentationView extends Region {
 
     public static enum ViewEnum {
 
