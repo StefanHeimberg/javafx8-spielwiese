@@ -18,7 +18,9 @@ package example.presentation;
 import javafx.animation.FadeTransition;
 import javafx.animation.SequentialTransition;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -45,6 +47,7 @@ public class PresentationView extends Pane {
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
     private final ObjectProperty<Media> media = new SimpleObjectProperty<>();
     private final ObjectProperty<Duration> fadeDuration = new SimpleObjectProperty<>(Duration.seconds(1));
+    private final BooleanProperty preserveRatio = new SimpleBooleanProperty(false);
 
     private final ImageView imageView1 = new ImageView();
     private final ImageView imageView2 = new ImageView();
@@ -91,24 +94,28 @@ public class PresentationView extends Pane {
         // Bind all views to the stage height and width. for resizing the window 
         imageView1.setId("image-view-1");
         imageView1.opacityProperty().set(0.0);
+        imageView1.preserveRatioProperty().bind(preserveRatio);
         imageView1.fitHeightProperty().bind(heightProperty());
         imageView1.fitWidthProperty().bind(widthProperty());
         getChildren().add(imageView1);
 
         imageView2.setId("image-view-2");
         imageView2.opacityProperty().set(0.0);
+        imageView2.preserveRatioProperty().bind(preserveRatio);
         imageView2.fitHeightProperty().bind(heightProperty());
         imageView2.fitWidthProperty().bind(widthProperty());
         getChildren().add(imageView2);
 
         mediaView1.setId("media-view-1");
         mediaView1.opacityProperty().set(0.0);
+        mediaView1.preserveRatioProperty().bind(preserveRatio);
         mediaView1.fitHeightProperty().bind(heightProperty());
         mediaView1.fitWidthProperty().bind(widthProperty());
         getChildren().add(mediaView1);
 
         mediaView2.setId("media-view-2");
         mediaView2.opacityProperty().set(0.0);
+        mediaView2.preserveRatioProperty().bind(preserveRatio);
         mediaView2.fitHeightProperty().bind(heightProperty());
         mediaView2.fitWidthProperty().bind(widthProperty());
         getChildren().add(mediaView2);
@@ -154,6 +161,18 @@ public class PresentationView extends Pane {
                 throw new IllegalStateException("cannot set media...");
             }
         });
+    }
+
+    public boolean isPreserveRatio() {
+        return preserveRatio.get();
+    }
+    
+    public void setPreserveRatio(final boolean preserveRatio) {
+        this.preserveRatio.set(preserveRatio);
+    }
+    
+    public BooleanProperty preserveRatio() {
+        return preserveRatio;
     }
     
     public Duration getFadeDuration() {

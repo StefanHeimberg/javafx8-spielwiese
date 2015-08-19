@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -74,6 +73,9 @@ public class App extends Application {
                 new Menu("Window", null,
                         createMenuItem("Fullscreen", KeyCode.F, (ActionEvent event) -> {
                             primaryStage.setFullScreen(!primaryStage.isFullScreen());
+                        }),
+                        createMenuItem("Switch Preserve Ratio", KeyCode.P, (ActionEvent event) -> {
+                            presentationView.setPreserveRatio(!presentationView.isPreserveRatio());
                         })
                 )
         );
