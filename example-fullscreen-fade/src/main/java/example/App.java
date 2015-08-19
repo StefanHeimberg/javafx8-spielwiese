@@ -15,6 +15,7 @@
  */
 package example;
 
+import example.presentation.PresentationPresenter;
 import example.presentation.PresentationView;
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,21 +55,22 @@ public class App extends Application {
         primaryStage.setTitle("Fullscreen Fade Example");
         
         final PresentationView presentationView = new PresentationView();
+        final PresentationPresenter presentationPresenter = presentationView.getPresenter();
 
         final MenuBar menuBar = new MenuBar(
                 new Menu("Media", null,
                         createMenuItem("Image 1", KeyCode.DIGIT1, (ActionEvent event) -> {
-                            presentationView.setImage(loadImage("media/image1.jpg"));
+                            presentationPresenter.setImage(loadImage("media/image1.jpg"));
                         }),
                         createMenuItem("Image 2", KeyCode.DIGIT2, (ActionEvent event) -> {
-                            presentationView.setImage(loadImage("media/image2.jpg"));
+                            presentationPresenter.setImage(loadImage("media/image2.jpg"));
                         }),
                         new SeparatorMenuItem(),
                         createMenuItem("Movie 1", KeyCode.DIGIT3, (ActionEvent event) -> {
-                            presentationView.setMedia(loadMedia("media/movie1.mp4"));
+                            presentationPresenter.setMedia(loadMedia("media/movie1.mp4"));
                         }),
                         createMenuItem("Movie 2", KeyCode.DIGIT4, (ActionEvent event) -> {
-                            presentationView.setMedia(loadMedia("media/movie2.mp4"));
+                            presentationPresenter.setMedia(loadMedia("media/movie2.mp4"));
                         })
                 ),
                 new Menu("Window", null,
@@ -76,15 +78,15 @@ public class App extends Application {
                             primaryStage.setFullScreen(!primaryStage.isFullScreen());
                         }),
                         createMenuItem("Switch Preserve Ratio", KeyCode.P, (ActionEvent event) -> {
-                            presentationView.setPreserveRatio(!presentationView.isPreserveRatio());
+                            presentationPresenter.setPreserveRatio(!presentationPresenter.isPreserveRatio());
                         })
                 )
         );
         menuBar.setUseSystemMenuBar(true);
 
-        presentationView.setImage(loadImage("media/default.jpg"));
+        presentationPresenter.setImage(loadImage("media/default.jpg"));
 
-        primaryStage.setScene(new Scene(new StackPane(menuBar, presentationView), MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
+        primaryStage.setScene(new Scene(new StackPane(menuBar, presentationView.getView()), MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
         primaryStage.show();
     }
 
