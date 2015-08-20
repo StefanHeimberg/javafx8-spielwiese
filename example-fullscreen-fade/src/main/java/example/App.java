@@ -46,31 +46,27 @@ public class App extends Application {
     private static final int MAX_SCREEN_WIDTH = 1280;
     private static final int MAX_SCREEN_HEIGHT = 720;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
     @Override
     public void start(final Stage primaryStage) throws Exception {
         primaryStage.setTitle("Fullscreen Fade Example");
-        
+
         final PresentationView presentationView = new PresentationView();
         final PresentationPresenter presentationPresenter = presentationView.getPresenter();
 
         final MenuBar menuBar = new MenuBar(
                 new Menu("Media", null,
                         createMenuItem("Image 1", KeyCode.DIGIT1, (ActionEvent event) -> {
-                            presentationPresenter.setImage(loadImage("media/image1.jpg"));
+                            presentationPresenter.imageProperty().set(loadImage("media/image1.jpg"));
                         }),
                         createMenuItem("Image 2", KeyCode.DIGIT2, (ActionEvent event) -> {
-                            presentationPresenter.setImage(loadImage("media/image2.jpg"));
+                            presentationPresenter.imageProperty().set(loadImage("media/image2.jpg"));
                         }),
                         new SeparatorMenuItem(),
                         createMenuItem("Movie 1", KeyCode.DIGIT3, (ActionEvent event) -> {
-                            presentationPresenter.setMedia(loadMedia("media/movie1.mp4"));
+                            presentationPresenter.mediaProperty().set(loadMedia("media/movie1.mp4"));
                         }),
                         createMenuItem("Movie 2", KeyCode.DIGIT4, (ActionEvent event) -> {
-                            presentationPresenter.setMedia(loadMedia("media/movie2.mp4"));
+                            presentationPresenter.mediaProperty().set(loadMedia("media/movie2.mp4"));
                         })
                 ),
                 new Menu("Window", null,
@@ -78,13 +74,13 @@ public class App extends Application {
                             primaryStage.setFullScreen(!primaryStage.isFullScreen());
                         }),
                         createMenuItem("Switch Preserve Ratio", KeyCode.P, (ActionEvent event) -> {
-                            presentationPresenter.setPreserveRatio(!presentationPresenter.isPreserveRatio());
+                            presentationPresenter.preserveRatio().set(!presentationPresenter.preserveRatio().get());
                         })
                 )
         );
         menuBar.setUseSystemMenuBar(true);
 
-        presentationPresenter.setImage(loadImage("media/default.jpg"));
+        presentationPresenter.imageProperty().set(loadImage("media/default.jpg"));
 
         primaryStage.setScene(new Scene(new StackPane(menuBar, presentationView.getView()), MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
         primaryStage.show();

@@ -47,30 +47,30 @@ public class PresentationPresenter implements Initializable {
 
         IMAGE1, IMAGE2, MEDIA1, MEDIA2;
     }
-    
-    private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
-    private final ObjectProperty<Media> media = new SimpleObjectProperty<>();
-    private final ObjectProperty<Duration> fadeDuration = new SimpleObjectProperty<>(Duration.seconds(1));
-    private final BooleanProperty preserveRatio = new SimpleBooleanProperty(false);
+
+    private final ObjectProperty<Image> image = new SimpleObjectProperty<>(this, "image");
+    private final ObjectProperty<Media> media = new SimpleObjectProperty<>(this, "media");
+    private final ObjectProperty<Duration> fadeDuration = new SimpleObjectProperty<>(this, "fadeDuration", Duration.seconds(1));
+    private final BooleanProperty preserveRatio = new SimpleBooleanProperty(this, "preserveRatio", false);
 
     private final FadeTransition fadeOutTransition = new FadeTransition();
     private final FadeTransition fadeInTransition = new FadeTransition();
     private final SequentialTransition transition = new SequentialTransition(fadeOutTransition, fadeInTransition);
-    
+
     private ViewEnum activeView;
-    
+
     @FXML
     private StackPane stackPane;
-    
+
     @FXML
     private ImageView imageView1;
-    
+
     @FXML
     private ImageView imageView2;
-    
+
     @FXML
     private MediaView mediaView1;
-    
+
     @FXML
     private MediaView mediaView2;
 
@@ -89,39 +89,39 @@ public class PresentationPresenter implements Initializable {
 
         // default values for fade out transition
         fadeOutTransition.durationProperty().bind(fadeDurationBinding);
-        fadeOutTransition.setFromValue(1.0);
-        fadeOutTransition.setToValue(0.1);
+        fadeOutTransition.fromValueProperty().set(1.0);
+        fadeOutTransition.toValueProperty().set(0.1);
 
         // default values for fade in transition
         fadeInTransition.durationProperty().bind(fadeDurationBinding);
-        fadeInTransition.setFromValue(0.1);
-        fadeInTransition.setToValue(1.0);
-        fadeInTransition.setOnFinished((ActionEvent event) -> {
-            final Node node = fadeOutTransition.getNode();
+        fadeInTransition.fromValueProperty().set(0.1);
+        fadeInTransition.toValueProperty().set(1.0);
+        fadeInTransition.onFinishedProperty().set((ActionEvent event) -> {
+            final Node node = fadeOutTransition.nodeProperty().get();
             node.opacityProperty().set(0.0);
             if (node instanceof MediaView) {
                 removeMedia((MediaView) node);
             } else if (node instanceof ImageView) {
-                ((ImageView) node).setImage(null);
+                ((ImageView) node).imageProperty().set(null);
             }
         });
-        
+
         imageView1.preserveRatioProperty().bind(preserveRatio);
         imageView1.fitHeightProperty().bind(stackPane.heightProperty());
         imageView1.fitWidthProperty().bind(stackPane.widthProperty());
-        
+
         imageView2.preserveRatioProperty().bind(preserveRatio);
         imageView2.fitHeightProperty().bind(stackPane.heightProperty());
         imageView2.fitWidthProperty().bind(stackPane.widthProperty());
-        
+
         mediaView1.preserveRatioProperty().bind(preserveRatio);
         mediaView1.fitHeightProperty().bind(stackPane.heightProperty());
         mediaView1.fitWidthProperty().bind(stackPane.widthProperty());
-        
+
         mediaView2.preserveRatioProperty().bind(preserveRatio);
         mediaView2.fitHeightProperty().bind(stackPane.heightProperty());
         mediaView2.fitWidthProperty().bind(stackPane.widthProperty());
-        
+
         image.addListener((ObservableValue<? extends Image> observable, Image oldValue, Image newValue) -> {
             if (null == activeView) {
                 showImage(null, imageView1, newValue);
@@ -165,84 +165,52 @@ public class PresentationPresenter implements Initializable {
         });
     }
 
-    public boolean isPreserveRatio() {
-        return preserveRatio.get();
-    }
-    
-    public void setPreserveRatio(final boolean preserveRatio) {
-        this.preserveRatio.set(preserveRatio);
-    }
-    
-    public BooleanProperty preserveRatio() {
+    public final BooleanProperty preserveRatio() {
         return preserveRatio;
     }
-    
-    public Duration getFadeDuration() {
-        return fadeDuration.get();
-    }
-    
-    public void setFadeDuration(final Duration fadeDuration) {
-        this.fadeDuration.set(fadeDuration);
-    }
-    
-    public ObjectProperty<Duration> fadeDurationProperty() {
+
+    public final ObjectProperty<Duration> fadeDurationProperty() {
         return fadeDuration;
     }
 
-    public Image getImage() {
-        return image.get();
-    }
-
-    public void setImage(final Image image) {
-        this.image.set(image);
-    }
-
-    public ObjectProperty<Image> imageProperty() {
+    public final ObjectProperty<Image> imageProperty() {
         return image;
     }
 
-    public Media getMedia() {
-        return media.get();
-    }
-
-    public void setMedia(final Media media) {
-        this.media.set(media);
-    }
-
-    public ObjectProperty<Media> mediaProperty() {
+    public final ObjectProperty<Media> mediaProperty() {
         return media;
     }
 
     private void showImage(final Node fromView, final ImageView toView, final Image image) {
         transition.stop();
-        
+
         if (null == fromView) {
-            toView.setImage(image);
+            toView.imageProperty().set(image);
             toView.opacityProperty().set(1.0);
             return;
         }
 
-        fadeOutTransition.setNode(fromView);
-        fadeOutTransition.setOnFinished((ActionEvent event) -> {
-            toView.setImage(image);
+        fadeOutTransition.nodeProperty().set(fromView);
+        fadeOutTransition.onFinishedProperty().set((ActionEvent event) -> {
+            toView.imageProperty().set(image);
         });
 
-        fadeInTransition.setNode(toView);
+        fadeInTransition.nodeProperty().set(toView);
 
         transition.playFromStart();
     }
 
     private void playMedia(final Node fromView, final MediaView toView, final Media media) {
         transition.stop();
-        
+
         removeMedia(toView);
 
         final MediaPlayer mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setMute(true);
+        mediaPlayer.muteProperty().set(true);
         mediaPlayer.startTimeProperty().set(Duration.seconds(10));
-        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        mediaPlayer.cycleCountProperty().set(MediaPlayer.INDEFINITE);
 
-        toView.setMediaPlayer(mediaPlayer);
+        toView.mediaPlayerProperty().set(mediaPlayer);
 
         if (null == fromView) {
             mediaPlayer.play();
@@ -250,22 +218,22 @@ public class PresentationPresenter implements Initializable {
             return;
         }
 
-        fadeOutTransition.setNode(fromView);
-        fadeOutTransition.setOnFinished((ActionEvent event) -> {
+        fadeOutTransition.nodeProperty().set(fromView);
+        fadeOutTransition.onFinishedProperty().set((ActionEvent event) -> {
             mediaPlayer.play();
         });
 
-        fadeInTransition.setNode(toView);
+        fadeInTransition.nodeProperty().set(toView);
 
         transition.playFromStart();
     }
 
     private static void removeMedia(final MediaView view) {
-        if (null != view.getMediaPlayer()) {
-            view.getMediaPlayer().stop();
+        if (null != view.mediaPlayerProperty().get()) {
+            view.mediaPlayerProperty().get().stop();
             view.getMediaPlayer().dispose();
-            view.setMediaPlayer(null);
+            view.mediaPlayerProperty().set(null);
         }
     }
-    
+
 }
