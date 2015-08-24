@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package example.presentation;
+package example.menubar;
 
 import java.io.IOException;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.MenuBar;
 
 /**
  *
  * @author Stefan Heimberg <kontakt@stefanheimberg.ch>
  */
-public class PresentationView {
+public class MenubarView {
     
     private final FXMLLoader loader;
 
-    public PresentationView() {
-        loader = new FXMLLoader(getClass().getResource("presentation.fxml"));
+    public MenubarView() {
+        loader = new FXMLLoader(getClass().getResource("menubar.fxml"));
         try {
             loader.load();
         } catch (IOException ex) {
@@ -36,11 +36,11 @@ public class PresentationView {
         }
     }
     
-    public StackPane getView() {
+    public MenuBar getView() {
         return loader.getRoot();
     }
 
-    public PresentationPresenter getPresenter() {
+    public MenubarPresenter getPresenter() {
         return loader.getController();
     }
     

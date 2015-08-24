@@ -75,7 +75,7 @@ public class PresentationPresenter implements Initializable {
     private MediaView mediaView2;
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    public void initialize(final URL url, final ResourceBundle rb) {
         final ObjectBinding fadeDurationBinding = new ObjectBinding() {
             {
                 super.bind(fadeDuration);
@@ -164,7 +164,7 @@ public class PresentationPresenter implements Initializable {
             }
         });
     }
-
+    
     public final BooleanProperty preserveRatio() {
         return preserveRatio;
     }

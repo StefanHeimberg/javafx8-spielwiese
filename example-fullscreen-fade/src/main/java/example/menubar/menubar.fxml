@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.input.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<MenuBar fx:id="menuBar" useSystemMenuBar="true" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="example.menubar.MenubarPresenter">
+    <menus>
+        <Menu id="mediaMenu" mnemonicParsing="false" text="Media">
+            <items>
+                <MenuItem id="image1MenuItem" mnemonicParsing="false" onAction="#handleImage1Action" text="Image 1">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem id="image2MenuItem" mnemonicParsing="false" onAction="#handleImage2Action" text="Image 2">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="DIGIT2" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem id="movie1MenuItem" mnemonicParsing="false" onAction="#handleMovie1Action" text="Movie 1">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem id="movie2MenuItem" mnemonicParsing="false" onAction="#handleMovie2Action" text="Movie 2">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="DIGIT4" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
+            </items>
+        </Menu>
+        <Menu id="windowMenu" mnemonicParsing="false" text="Window">
+            <items>
+                <MenuItem id="fullscreenMenuItem" mnemonicParsing="false" onAction="#handleFullscreenAction" text="Fullscreen">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+               </accelerator></MenuItem>
+                <MenuItem id="preserveRatioMenuItem" mnemonicParsing="false" onAction="#handlePreserveRatioAction" text="Switch Preserve Ratio">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+               </accelerator></MenuItem>
+            </items>
+        </Menu>
+    </menus>
+</MenuBar>
