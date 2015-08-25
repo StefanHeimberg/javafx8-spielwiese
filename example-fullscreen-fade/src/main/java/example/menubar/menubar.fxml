@@ -22,15 +22,20 @@
                         <KeyCodeCombination alt="UP" code="DIGIT2" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                     </accelerator>
                 </MenuItem>
-                <SeparatorMenuItem mnemonicParsing="false" />
-                <MenuItem id="movie1MenuItem" mnemonicParsing="false" onAction="#handleMovie1Action" text="Movie 1">
+                <MenuItem id="image2LongRunningMenuItem" mnemonicParsing="false" onAction="#handleImage2LongRunningAction" text="Image 2 (Long Running)">
                     <accelerator>
                         <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                     </accelerator>
                 </MenuItem>
-                <MenuItem id="movie2MenuItem" mnemonicParsing="false" onAction="#handleMovie2Action" text="Movie 2">
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem id="movie1MenuItem" mnemonicParsing="false" onAction="#handleMovie1Action" text="Movie 1">
                     <accelerator>
                         <KeyCodeCombination alt="UP" code="DIGIT4" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem id="movie2MenuItem" mnemonicParsing="false" onAction="#handleMovie2Action" text="Movie 2">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="DIGIT5" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                     </accelerator>
                 </MenuItem>
             </items>
