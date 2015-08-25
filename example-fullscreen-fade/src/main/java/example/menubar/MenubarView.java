@@ -15,33 +15,23 @@
  */
 package example.menubar;
 
-import java.io.IOException;
-import javafx.fxml.FXMLLoader;
+import com.airhacks.afterburner.views.FXMLView;
 import javafx.scene.control.MenuBar;
 
 /**
  *
  * @author Stefan Heimberg <kontakt@stefanheimberg.ch>
  */
-public class MenubarView {
-    
-    private final FXMLLoader loader;
+public class MenubarView extends FXMLView {
 
-    public MenubarView() {
-        loader = new FXMLLoader(getClass().getResource("menubar.fxml"));
-        try {
-            loader.load();
-        } catch (IOException ex) {
-            throw new IllegalStateException("Cannot load fxml", ex);
-        }
-    }
-    
-    public MenuBar getView() {
-        return loader.getRoot();
-    }
-
+    @Override
     public MenubarPresenter getPresenter() {
-        return loader.getController();
+        return (MenubarPresenter) super.getPresenter();
+    }
+
+    @Override
+    public MenuBar getView() {
+        return (MenuBar) super.getView();
     }
     
 }

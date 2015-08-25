@@ -15,6 +15,7 @@
  */
 package example;
 
+import com.airhacks.afterburner.injection.Injector;
 import example.menubar.MenubarPresenter;
 import example.menubar.MenubarView;
 import example.presentation.PresentationPresenter;
@@ -36,6 +37,8 @@ public class App extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
+        Injector.injectMembers(App.class, this);
+        
         primaryStage.setTitle("Fullscreen Fade Example");
         
         final MenubarView menubarView = new MenubarView();
@@ -59,4 +62,9 @@ public class App extends Application {
         primaryStage.show();
     }
 
+    @Override
+    public void stop() throws Exception {
+        Injector.forgetAll();
+    }
+    
 }
