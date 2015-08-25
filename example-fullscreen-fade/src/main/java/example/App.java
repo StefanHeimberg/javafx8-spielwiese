@@ -15,26 +15,21 @@
  */
 package example;
 
+import com.airhacks.afterburner.injection.Injector;
+import example.image.ImageService;
+import example.menubar.MenubarPresenter;
+import example.menubar.MenubarView;
+import example.presentation.PresentationPresenter;
 import example.presentation.PresentationView;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.Media;
 import javafx.stage.Stage;
+import javax.inject.Inject;
 
 /**
  *
@@ -44,67 +39,48 @@ public class App extends Application {
 
     private static final int MAX_SCREEN_WIDTH = 1280;
     private static final int MAX_SCREEN_HEIGHT = 720;
-
-    public static void main(String[] args) {
-        launch(args);
-    }
+    
+    @Inject
+    private ImageService imageService;
+    
+    private final ObjectProperty<Image> image = new SimpleObjectProperty<>(this, "image");
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
+        Injector.injectMembers(App.class, this);
+        
         primaryStage.setTitle("Fullscreen Fade Example");
         
+        final MenubarView menubarView = new MenubarView();
+        final MenubarPresenter menubarPresenter = menubarView.getPresenter();
+        
+        menubarPresenter.fullscreenProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+            primaryStage.setFullScreen(newValue);
+        });
+        menubarPresenter.imageProperty().addListener((ObservableValue<? extends Image> observable, Image oldValue, Image newValue) -> {
+            image.set(newValue);
+        });
+        
         final PresentationView presentationView = new PresentationView();
+        final PresentationPresenter presentationPresenter = presentationView.getPresenter();
+        
+        presentationPresenter.imageProperty().bind(image);
+        presentationPresenter.mediaProperty().bind(menubarPresenter.mediaProperty());
+        presentationPresenter.preserveRatio().bind(menubarPresenter.preserveRatioProperty());
+        presentationPresenter.muteProperty().bind(menubarPresenter.muteProperty());
+        
+        image.set(imageService.loadImageFromPath("media/default.jpg"));
+        
+        final StackPane stackPane = presentationView.getView();
+        stackPane.getChildren().add(menubarView.getView());
 
-        final MenuBar menuBar = new MenuBar(
-                new Menu("Media", null,
-                        createMenuItem("Image 1", KeyCode.DIGIT1, (ActionEvent event) -> {
-                            presentationView.setImage(loadImage("media/image1.jpg"));
-                        }),
-                        createMenuItem("Image 2", KeyCode.DIGIT2, (ActionEvent event) -> {
-                            presentationView.setImage(loadImage("media/image2.jpg"));
-                        }),
-                        new SeparatorMenuItem(),
-                        createMenuItem("Movie 1", KeyCode.DIGIT3, (ActionEvent event) -> {
-                            presentationView.setMedia(loadMedia("media/movie1.mp4"));
-                        }),
-                        createMenuItem("Movie 2", KeyCode.DIGIT4, (ActionEvent event) -> {
-                            presentationView.setMedia(loadMedia("media/movie2.mp4"));
-                        })
-                ),
-                new Menu("Window", null,
-                        createMenuItem("Fullscreen", KeyCode.F, (ActionEvent event) -> {
-                            primaryStage.setFullScreen(!primaryStage.isFullScreen());
-                        }),
-                        createMenuItem("Switch Preserve Ratio", KeyCode.P, (ActionEvent event) -> {
-                            presentationView.setPreserveRatio(!presentationView.isPreserveRatio());
-                        })
-                )
-        );
-        menuBar.setUseSystemMenuBar(true);
-
-        presentationView.setImage(loadImage("media/default.jpg"));
-
-        primaryStage.setScene(new Scene(new StackPane(menuBar, presentationView), MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
+        primaryStage.setScene(new Scene(stackPane, MAX_SCREEN_WIDTH / 3 * 2, MAX_SCREEN_HEIGHT / 3 * 2));
         primaryStage.show();
     }
 
-    private static Image loadImage(final String filePath) {
-        try (final InputStream is = new FileInputStream(filePath)) {
-            return new Image(is);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+    @Override
+    public void stop() throws Exception {
+        Injector.forgetAll();
     }
-
-    private static Media loadMedia(final String mediaPath) {
-        return new Media(new File(mediaPath).toURI().toString());
-    }
-
-    private static MenuItem createMenuItem(final String label, final KeyCode keyCode, final EventHandler<ActionEvent> eventHandler) {
-        final MenuItem menuItem = new MenuItem(label);
-        menuItem.setAccelerator(new KeyCodeCombination(keyCode, KeyCombination.SHORTCUT_DOWN));
-        menuItem.setOnAction(eventHandler);
-        return menuItem;
-    }
-
+    
 }

@@ -6,6 +6,7 @@ nb-configuration.xml
 .nb-*
 *.bak
 *.lock
+private/
 
 !libs/
 

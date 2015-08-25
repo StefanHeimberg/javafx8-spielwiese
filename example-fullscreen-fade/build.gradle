@@ -18,6 +18,22 @@ ext {
     }
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/java'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies() {
+    compile 'com.airhacks:afterburner.fx:1.6.2'
+}
+
 // ---------------------------------------------------------------------------
 // Gradle Wrapper Task
 // ---------------------------------------------------------------------------

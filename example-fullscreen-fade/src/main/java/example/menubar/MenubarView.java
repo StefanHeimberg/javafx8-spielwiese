@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package example.presentation;
+package example.menubar;
 
 import com.airhacks.afterburner.views.FXMLView;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.MenuBar;
 
 /**
  *
  * @author Stefan Heimberg <kontakt@stefanheimberg.ch>
  */
-public class PresentationView extends FXMLView {
+public class MenubarView extends FXMLView {
 
     @Override
-    public PresentationPresenter getPresenter() {
-        return (PresentationPresenter) super.getPresenter();
+    public MenubarPresenter getPresenter() {
+        return (MenubarPresenter) super.getPresenter();
     }
 
     @Override
-    public StackPane getView() {
-        return (StackPane) super.getView();
+    public MenuBar getView() {
+        return (MenuBar) super.getView();
     }
-
+    
 }
