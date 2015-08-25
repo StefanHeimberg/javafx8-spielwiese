@@ -51,7 +51,8 @@ public class PresentationPresenter implements Initializable {
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>(this, "image");
     private final ObjectProperty<Media> media = new SimpleObjectProperty<>(this, "media");
     private final ObjectProperty<Duration> fadeDuration = new SimpleObjectProperty<>(this, "fadeDuration", Duration.seconds(1));
-    private final BooleanProperty preserveRatio = new SimpleBooleanProperty(this, "preserveRatio", false);
+    private final BooleanProperty preserveRatio = new SimpleBooleanProperty(this, "preserveRatio");
+    private final BooleanProperty mute = new SimpleBooleanProperty(this, "mute");
 
     private final FadeTransition fadeOutTransition = new FadeTransition();
     private final FadeTransition fadeInTransition = new FadeTransition();
@@ -181,6 +182,10 @@ public class PresentationPresenter implements Initializable {
         return media;
     }
 
+    public final BooleanProperty muteProperty() {
+        return mute;
+    }
+    
     private void showImage(final Node fromView, final ImageView toView, final Image image) {
         transition.stop();
 
@@ -206,7 +211,7 @@ public class PresentationPresenter implements Initializable {
         removeMedia(toView);
 
         final MediaPlayer mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.muteProperty().set(true);
+        mediaPlayer.muteProperty().bind(mute);
         mediaPlayer.startTimeProperty().set(Duration.seconds(10));
         mediaPlayer.cycleCountProperty().set(MediaPlayer.INDEFINITE);
 

@@ -39,8 +39,9 @@ public class MenubarPresenter {
     
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>(this, "image");
     private final ObjectProperty<Media> media = new SimpleObjectProperty<>(this, "media");
-    private final BooleanProperty fullscreen = new SimpleBooleanProperty(this, "fullscreen", false);
-    private final BooleanProperty preserveRatio = new SimpleBooleanProperty(this, "preserveRatio", false);
+    private final BooleanProperty fullscreen = new SimpleBooleanProperty(this, "fullscreen");
+    private final BooleanProperty preserveRatio = new SimpleBooleanProperty(this, "preserveRatio");
+    private final BooleanProperty mute = new SimpleBooleanProperty(this, "mute");
 
     public final ReadOnlyObjectProperty<Image> imageProperty() {
         return image;
@@ -54,8 +55,12 @@ public class MenubarPresenter {
         return fullscreen;
     }
 
-    public BooleanProperty preserveRatioProperty() {
+    public ReadOnlyBooleanProperty preserveRatioProperty() {
         return preserveRatio;
+    }
+
+    public ReadOnlyBooleanProperty muteProperty() {
+        return mute;
     }
     
     @FXML
@@ -86,6 +91,11 @@ public class MenubarPresenter {
     @FXML
     public void handlePreserveRatioAction(final ActionEvent event) {
         preserveRatio.set(!preserveRatio.get());
+    }
+    
+    @FXML
+    public void handleMuteAction(final ActionEvent event) {
+        mute.set(!mute.get());
     }
 
 }

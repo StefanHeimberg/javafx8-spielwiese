@@ -67,6 +67,7 @@ public class App extends Application {
         presentationPresenter.imageProperty().bind(image);
         presentationPresenter.mediaProperty().bind(menubarPresenter.mediaProperty());
         presentationPresenter.preserveRatio().bind(menubarPresenter.preserveRatioProperty());
+        presentationPresenter.muteProperty().bind(menubarPresenter.muteProperty());
         
         image.set(imageService.loadImageFromPath("media/default.jpg"));
         

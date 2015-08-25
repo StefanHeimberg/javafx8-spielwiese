@@ -38,13 +38,20 @@
         <Menu id="windowMenu" mnemonicParsing="false" text="Window">
             <items>
                 <MenuItem id="fullscreenMenuItem" mnemonicParsing="false" onAction="#handleFullscreenAction" text="Fullscreen">
-               <accelerator>
-                  <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
-               </accelerator></MenuItem>
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
                 <MenuItem id="preserveRatioMenuItem" mnemonicParsing="false" onAction="#handlePreserveRatioAction" text="Switch Preserve Ratio">
-               <accelerator>
-                  <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
-               </accelerator></MenuItem>
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem id="muteMenuItem" mnemonicParsing="false" onAction="#handleMuteAction" text="Mute">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="M" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                    </accelerator>
+                </MenuItem>
             </items>
         </Menu>
     </menus>
