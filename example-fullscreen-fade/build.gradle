@@ -2,7 +2,18 @@
 // Build Script for this Project
 // ***************************************************************************
 
+buildscript {
+    dependencies {
+        classpath fileTree(dir: "${System.properties['java.home']}/../lib", include: '*.jar')
+        classpath fileTree(dir: 'libs/buildscript/', include: '*.jar')
+    }
+}
+
 apply plugin: 'java'
+
+if (!project.plugins.findPlugin(org.bitbucket.shemnon.javafxplugin.JavaFXPlugin)) {
+    project.apply(plugin: org.bitbucket.shemnon.javafxplugin.JavaFXPlugin)
+}
 
 // ---------------------------------------------------------------------------
 // Project Properties
@@ -26,13 +37,21 @@ sourceSets {
     }
 }
 
-repositories {
-    mavenCentral()
+dependencies() {
+    compile fileTree(
+        'libs/afterburner.fx-1.6.2.jar'
+    )
 }
 
-dependencies() {
-    compile 'com.airhacks:afterburner.fx:1.6.2'
+// ---------------------------------------------------------------------------
+// Java FX Plugin
+// ---------------------------------------------------------------------------
+
+javafx {
+    mainClass 'org.example.App'
+    embedLauncher = true
 }
+
 
 // ---------------------------------------------------------------------------
 // Gradle Wrapper Task
