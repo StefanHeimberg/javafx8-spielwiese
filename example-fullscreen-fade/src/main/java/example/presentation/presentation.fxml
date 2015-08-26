@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.media.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/8"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:id="stackPane"
+           fx:controller="example.presentation.PresentationPresenter">
+    <children>
+        <ImageView fx:id="imageView1" opacity="0.0" />
+        <ImageView fx:id="imageView2" opacity="0.0" />
+        <MediaView fx:id="mediaView1" opacity="0.0" />
+        <MediaView fx:id="mediaView2" opacity="0.0" />
+    </children>
+</StackPane>
