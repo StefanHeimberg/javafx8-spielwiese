@@ -15,7 +15,6 @@
  */
 package example.image;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javafx.scene.image.Image;
@@ -27,7 +26,8 @@ import javafx.scene.image.Image;
 public class ImageService {
 
     public Image loadImageFromPath(final String filePath) {
-        try (final InputStream is = new FileInputStream(filePath)) {
+        final ClassLoader cl = getClass().getClassLoader();
+        try (final InputStream is = cl.getResourceAsStream(filePath)) {
             return new Image(is);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
