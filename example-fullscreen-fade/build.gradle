@@ -48,8 +48,9 @@ dependencies() {
 // ---------------------------------------------------------------------------
 
 javafx {
-    mainClass 'org.example.App'
+    mainClass project.mainClass
     embedLauncher = true
+    packaging = 'installer'
 }
 
 

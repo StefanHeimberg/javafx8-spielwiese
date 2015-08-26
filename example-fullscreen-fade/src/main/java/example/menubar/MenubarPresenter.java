@@ -69,12 +69,12 @@ public class MenubarPresenter {
 
     @FXML
     public void handleImage1Action(final ActionEvent event) {
-        image.set(imageService.loadImageFromPath("media/image1.jpg"));
+        image.set(imageService.loadImageFromPath("example/image/image1.jpg"));
     }
 
     @FXML
     public void handleImage2Action(final ActionEvent event) {
-        image.set(imageService.loadImageFromPath("media/image2.jpg"));
+        image.set(imageService.loadImageFromPath("example/image/image2.jpg"));
     }
 
     @FXML
@@ -86,7 +86,7 @@ public class MenubarPresenter {
                     @Override
                     protected Image call() throws Exception {
                         Thread.sleep(2000l);
-                        return imageService.loadImageFromPath("media/image2.jpg");
+                        return imageService.loadImageFromPath("example/image/image2.jpg");
                     };
                 };
             }
@@ -99,12 +99,12 @@ public class MenubarPresenter {
 
     @FXML
     public void handleMovie1Action(final ActionEvent event) {
-        media.set(mediaService.loadMediaFromFilePath("media/movie1.mp4"));
+        media.set(mediaService.loadMediaFromFilePath("example/media/movie1.mp4"));
     }
 
     @FXML
     public void handleMovie2Action(final ActionEvent event) {
-        media.set(mediaService.loadMediaFromFilePath("media/movie2.mp4"));
+        media.set(mediaService.loadMediaFromFilePath("example/media/movie2.mp4"));
     }
 
     @FXML

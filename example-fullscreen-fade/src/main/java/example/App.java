@@ -69,7 +69,7 @@ public class App extends Application {
         presentationPresenter.preserveRatio().bind(menubarPresenter.preserveRatioProperty());
         presentationPresenter.muteProperty().bind(menubarPresenter.muteProperty());
         
-        image.set(imageService.loadImageFromPath("media/default.jpg"));
+        image.set(imageService.loadImageFromPath("example/image/default.jpg"));
         
         final StackPane stackPane = presentationView.getView();
         stackPane.getChildren().add(menubarView.getView());

@@ -15,7 +15,7 @@
  */
 package example.media;
 
-import java.io.File;
+import java.net.URISyntaxException;
 import javafx.scene.media.Media;
 
 /**
@@ -25,7 +25,12 @@ import javafx.scene.media.Media;
 public class MediaService {
     
     public Media loadMediaFromFilePath(final String filePath) {
-        return new Media(new File(filePath).toURI().toString());
+        try {
+            final ClassLoader cl = getClass().getClassLoader();
+            return new Media(cl.getResource(filePath).toURI().toString());
+        } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
     }
     
 }
